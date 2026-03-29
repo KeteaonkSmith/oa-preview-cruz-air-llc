@@ -13,9 +13,7 @@ const D = {
     addr: "Chicago, IL",
     email: "info@cruzairllc.com",
     socials: [
-      { label: "Facebook", url: "https://facebook.com/cruzairllc", icon: "fb" },
-      { label: "Instagram", url: "https://instagram.com/cruzairllc", icon: "ig" },
-      { label: "Google", url: "https://g.page/cruzairllc", icon: "gg" },
+      { label: "Facebook", url: "https://www.facebook.com/cruzairchicago", icon: "fb" },
     ],
   },
   hero: {
