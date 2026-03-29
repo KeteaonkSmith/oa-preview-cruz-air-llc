@@ -282,16 +282,34 @@ const MobCTA = () => (
 );
 
 const ContactForm = () => {
+  const FORMSPREE = "https://formspree.io/f/mlgojvzr";
   const [f, setF] = useState({ name: "", phone: "", email: "", service: "", msg: "" });
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState("idle"); // idle | submitting | success | error
   const inp = { fontFamily: ff, width: "100%", padding: "12px 14px", borderRadius: 8, border: `1.5px solid ${C.p}22`, fontSize: 14, outline: "none", background: C.sf, color: C.tx };
-  if (sent) return (
+
+  const submit = async () => {
+    if (!f.name || !f.phone) { alert("Name and phone required."); return; }
+    setStatus("submitting");
+    try {
+      const res = await fetch(FORMSPREE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ name: f.name, phone: f.phone, email: f.email, service: f.service, message: f.msg }),
+      });
+      setStatus(res.ok ? "success" : "error");
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  if (status === "success") return (
     <div style={{ background: `${C.p}0D`, borderRadius: 12, padding: 32, textAlign: "center" }}>
       <div style={{ width: 52, height: 52, borderRadius: "50%", background: `${C.p}1A`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>{Ic.check(C.p, 26)}</div>
       <h3 style={{ fontFamily: ff, fontSize: 20, fontWeight: 700, color: C.tx, margin: "0 0 6px" }}>Message Sent!</h3>
       <p style={{ fontFamily: ff, fontSize: 14, color: C.lt }}>We'll respond shortly. Need help now? <a href={`tel:${D.biz.phone}`} style={{ color: C.p, fontWeight: 700 }}>{D.biz.phone}</a></p>
     </div>
   );
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <input value={f.name} onChange={e => setF({ ...f, name: e.target.value })} placeholder="Your Name *" style={inp} />
@@ -304,8 +322,11 @@ const ContactForm = () => {
         {D.services.map((s, i) => <option key={i} value={s.t}>{s.t}</option>)}
       </select>
       <textarea value={f.msg} onChange={e => setF({ ...f, msg: e.target.value })} placeholder="Describe your issue..." rows={4} style={{ ...inp, resize: "vertical" }} />
-      <button onClick={() => f.name && f.phone ? setSent(true) : alert("Name and phone required.")} style={{ fontFamily: ff, background: C.ct, color: C.ctT, padding: 14, borderRadius: 8, fontWeight: 700, fontSize: 16, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-        {Ic.mail(C.ctT)} Submit Request
+      {status === "error" && (
+        <p style={{ fontFamily: ff, fontSize: 13, color: "#C41E3A", textAlign: "center" }}>Something went wrong. Please call us directly at {D.biz.phone}.</p>
+      )}
+      <button onClick={submit} disabled={status === "submitting"} style={{ fontFamily: ff, background: status === "submitting" ? `${C.ct}99` : C.ct, color: C.ctT, padding: 14, borderRadius: 8, fontWeight: 700, fontSize: 16, border: "none", cursor: status === "submitting" ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+        {Ic.mail(C.ctT)} {status === "submitting" ? "Sending..." : "Submit Request"}
       </button>
     </div>
   );
